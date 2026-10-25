@@ -1,0 +1,27 @@
+load("@rules_java//java:defs.bzl", "java_binary", "java_library", "java_test")
+
+java_library(
+    name = "greeting",
+    srcs = ["Greeting.java"],
+    deps = [
+        "@maven//:com_google_guava_guava",
+        "@maven//:org_apache_commons_commons_lang3",
+    ],
+)
+
+java_binary(
+    name = "hello",
+    srcs = ["Main.java"],
+    main_class = "example.jvm.Main",
+    deps = [":greeting"],
+)
+
+java_test(
+    name = "greeting_test",
+    srcs = ["GreetingTest.java"],
+    test_class = "example.jvm.GreetingTest",
+    deps = [
+        ":greeting",
+        "@maven//:junit_junit",
+    ],
+)

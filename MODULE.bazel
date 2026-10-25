@@ -1,0 +1,53 @@
+module(
+    name = "my_bazel_template_repository",
+    version = "0.1.0",
+)
+
+bazel_dep(name = "rules_scala", version = "7.4.0")
+bazel_dep(name = "rules_jvm_external", version = "7.2")
+bazel_dep(name = "rules_python", version = "1.8.5")
+bazel_dep(name = "rules_java", version = "9.6.1")
+
+scala_config = use_extension(
+    "@rules_scala//scala/extensions:config.bzl",
+    "scala_config",
+)
+scala_config.settings(scala_version = "2.13.18")
+
+scala_deps = use_extension(
+    "@rules_scala//scala/extensions:deps.bzl",
+    "scala_deps",
+)
+scala_deps.scala()
+scala_deps.scalatest()
+use_repo(scala_deps, "rules_scala_toolchains")
+register_toolchains("@rules_scala_toolchains//...:all")
+
+maven = use_extension("@rules_jvm_external//:extensions.bzl", "maven")
+maven.install(
+    name = "maven",
+    artifacts = [
+        "com.google.guava:guava:33.4.8-jre",
+        "junit:junit:4.13.2",
+        "org.apache.commons:commons-lang3:3.17.0",
+    ],
+    known_contributing_modules = ["protobuf"],
+    lock_file = "//:maven_install.json",
+    repositories = ["https://repo.maven.apache.org/maven2"],
+)
+use_repo(maven, "maven")
+
+python = use_extension(
+    "@rules_python//python/extensions:python.bzl",
+    "python",
+)
+python.defaults(python_version = "3.12")
+python.toolchain(python_version = "3.12")
+
+pip = use_extension("@rules_python//python/extensions:pip.bzl", "pip")
+pip.parse(
+    hub_name = "pypi",
+    python_version = "3.12",
+    requirements_lock = "//:requirements.txt",
+)
+use_repo(pip, "pypi")

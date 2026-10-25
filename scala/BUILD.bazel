@@ -1,0 +1,23 @@
+load("@rules_scala//scala:scala.bzl", "scala_binary", "scala_library", "scala_test")
+
+scala_library(
+    name = "greeting",
+    srcs = ["Greeting.scala"],
+    deps = [
+        "@maven//:com_google_guava_guava",
+        "@maven//:org_apache_commons_commons_lang3",
+    ],
+)
+
+scala_binary(
+    name = "hello",
+    srcs = ["Main.scala"],
+    main_class = "example.scala.Main",
+    deps = [":greeting"],
+)
+
+scala_test(
+    name = "greeting_test",
+    srcs = ["GreetingTest.scala"],
+    deps = [":greeting"],
+)

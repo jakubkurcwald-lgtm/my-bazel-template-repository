@@ -1,0 +1,36 @@
+---
+- name: Install Bazelisk as the bazel command
+  hosts: all
+  gather_facts: true
+
+  vars:
+    bazelisk_version: "1.30.0"
+    bazelisk_downloads:
+      x86_64:
+        sha256: "a248ae2b2b62b5baebb748f6fba7203bff1a27e5d01b55399a8406744cb539e8"
+        asset: "bazelisk-linux-amd64"
+      aarch64:
+        sha256: "b2bcc040c213b44586b121bda6d983c35df121b917c3a7a66fb16f2fa0df1a4f"
+        asset: "bazelisk-linux-arm64"
+    bazelisk_install_dir: "{{ ansible_facts['user_dir'] }}/.local/bin"
+
+  tasks:
+    - name: Ensure the host is Linux on a supported architecture
+      ansible.builtin.assert:
+        that:
+          - ansible_facts['system'] == "Linux"
+          - ansible_facts['architecture'] in bazelisk_downloads
+        fail_msg: "This playbook supports Linux x86_64 and aarch64 hosts."
+
+    - name: Create the user-local binary directory
+      ansible.builtin.file:
+        path: "{{ bazelisk_install_dir }}"
+        state: directory
+        mode: "0755"
+
+    - name: Install Bazelisk as ~/.local/bin/bazel
+      ansible.builtin.get_url:
+        url: "https://github.com/bazelbuild/bazelisk/releases/download/v{{ bazelisk_version }}/{{ bazelisk_downloads[ansible_facts['architecture']].asset }}"
+        dest: "{{ bazelisk_install_dir }}/bazel"
+        checksum: "sha256:{{ bazelisk_downloads[ansible_facts['architecture']].sha256 }}"
+        mode: "0755"

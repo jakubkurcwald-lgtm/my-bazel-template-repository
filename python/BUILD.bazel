@@ -1,0 +1,16 @@
+load("@rules_python//python:py_binary.bzl", "py_binary")
+load("@rules_python//python:py_test.bzl", "py_test")
+
+py_binary(
+    name = "hello",
+    srcs = ["main.py"],
+    main = "main.py",
+    deps = ["@pypi//requests"],
+)
+
+py_test(
+    name = "hello_test",
+    srcs = ["main_test.py"],
+    main = "main_test.py",
+    deps = ["@pypi//requests"],
+)
